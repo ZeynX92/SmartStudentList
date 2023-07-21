@@ -155,8 +155,6 @@ cython_debug/
 # Database
 /src/db/students.db
 
-# Dinamic Content
-/src/documents/
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
