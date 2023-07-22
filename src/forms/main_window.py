@@ -10,6 +10,8 @@ from data.documents import Document
 from .student import AddStudentForm, EditStudentForm
 from .document import AddDocumentForm, EditDocumentForm
 from PyQt5.QtWidgets import QMainWindow, QWidget, QTableWidgetItem, QFileDialog
+from openpyxl import load_workbook, Workbook
+from openpyxl.styles import Font
 
 
 class SmartStudentList(QMainWindow):
@@ -38,10 +40,20 @@ class SmartStudentList(QMainWindow):
         self.search_student()
 
         # Обработка файлов Импорт Экспорт
+        self.lineEdit_4.setReadOnly(True)
+        self.lineEdit_2.setReadOnly(True)
+        self.lineEdit_5.setReadOnly(True)
+
         self.list_path = None
+        self.table_path = None
+        self.table_save_path = None
 
         self.select_path_button_2.clicked.connect(self.select_save_path_list)
         self.create_list_button.clicked.connect(self.create_list)
+        self.create_email_button.clicked.connect(self.create_email)
+        self.select_file_button.clicked.connect(self.select_file)
+        self.start_cut_button.clicked.connect(self.start_cut)
+        self.select_path_button.clicked.connect(self.select_save_path_keys)
 
         # Хранилище документов
         self.tableWidget_1.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
@@ -139,17 +151,43 @@ class SmartStudentList(QMainWindow):
         self.setEnabled(False)
 
     def select_file(self):
-        ...
+        self.table_path = QFileDialog.getOpenFileName(self, 'Выбрать файл', '', 'All Files (*);')[0]
+        self.lineEdit_5.setText(self.table_path)
 
     def select_save_path_keys(self):
-        ...
+        self.table_save_path = QFileDialog.getExistingDirectory(self, "Select Directory")
+        self.lineEdit_2.setText(self.table_save_path)
 
     def start_cut(self):
+        try:
+            table = load_workbook(self.table_path)
+            worksheet = table.active
+            table_content_raw = tuple(worksheet.rows)
+            table_content = [[cell.value for cell in row] for row in table_content_raw]
+            print(*table_content, sep='\n')
+
+            for i in range(len(table_content) - 1):
+                workbook = Workbook()
+                active_worksheet = workbook.active
+                active_worksheet.append(table_content[0])
+                active_worksheet.append(table_content[i + 1])
+
+                red_font = Font(color='00FF0000', bold=True)
+
+                for cell in active_worksheet["1:1"]:
+                    cell.font = red_font
+
+                workbook.save(os.path.join(self.table_save_path, f'{table_content[i + 1][0].split()[0]}.xlsx'))
+                # TODO: сделать системное сообщение о процессе по имени Петя
+        except Exception:
+            self.warn = Warn("Проверьте пути...")
+            self.warn.show()
+
+    def create_email(self):
         ...
 
     def select_save_path_list(self):
         self.list_path = QFileDialog.getExistingDirectory(self, "Select Directory")
-
         self.lineEdit_4.setText(self.list_path)
 
     def create_list(self):
@@ -199,8 +237,10 @@ class SmartStudentList(QMainWindow):
                                   f'Список класса ' + \
                                   f'{self.comboBox.currentText() if self.comboBox.currentText() != "Все" else "полный"}' + \
                                   f'.docx'))
+            # TODO: сделать системное сообщение о процессе по имени Петя
         except Exception:
             self.warn = Warn("Невозможно перезаписать файл. Проверьте путь и разрешения")
+            self.warn.show()
 
 
 class Warn(QWidget):
