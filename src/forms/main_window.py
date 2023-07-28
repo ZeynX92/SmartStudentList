@@ -1,4 +1,5 @@
 import os.path
+import time
 import docx
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -12,6 +13,7 @@ from .document import AddDocumentForm, EditDocumentForm
 from PyQt5.QtWidgets import QMainWindow, QWidget, QTableWidgetItem, QFileDialog
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font
+from email_module import send_email
 
 
 class SmartStudentList(QMainWindow):
@@ -159,6 +161,7 @@ class SmartStudentList(QMainWindow):
         self.lineEdit_2.setText(self.table_save_path)
 
     def start_cut(self):
+        self.keys_cutted = False
         try:
             table = load_workbook(self.table_path)
             worksheet = table.active
@@ -177,14 +180,36 @@ class SmartStudentList(QMainWindow):
                 for cell in active_worksheet["1:1"]:
                     cell.font = red_font
 
-                workbook.save(os.path.join(self.table_save_path, f'{table_content[i + 1][0].split()[0]}.xlsx'))
+                workbook.save(os.path.join(self.table_save_path,
+                                           f'{table_content[i + 1][0].split()[0]} {table_content[i + 1][0].split()[1]} {table_content[i + 1][0].split()[2]}.xlsx'))
                 # TODO: сделать системное сообщение о процессе по имени Петя
+                self.keys_cutted = True
+
         except Exception:
             self.warn = Warn("Проверьте пути...")
             self.warn.show()
 
     def create_email(self):
-        ...
+        if self.keys_cutted:
+            print("OK")
+            db_sess = db_session.create_session()
+            result_raw = db_sess.query(Student).all()
+
+            for student in result_raw:
+                print(student.surname, student.email, os.path.join(self.table_save_path,
+                                                                   f'{student.surname} {student.name} {student.lastname}.xlsx'))
+                try:
+                    print(send_email(student.email,
+                                     os.path.join(self.table_save_path,
+                                                  f'{student.surname} {student.name} {student.lastname}.xlsx').replace(
+                                         '\\', '/')))
+                    time.sleep(2)
+                except Exception:
+                    print(student.surname, student.name, student.email)
+                    continue
+        else:
+            self.warn = Warn("Вы еще не нарезали ключи...")
+            self.warn.show()
 
     def select_save_path_list(self):
         self.list_path = QFileDialog.getExistingDirectory(self, "Select Directory")
