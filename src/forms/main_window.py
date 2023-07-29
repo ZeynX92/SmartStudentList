@@ -182,7 +182,7 @@ class SmartStudentList(QMainWindow):
 
                 workbook.save(os.path.join(self.table_save_path,
                                            f'{table_content[i + 1][0].split()[0]} {table_content[i + 1][0].split()[1]} {table_content[i + 1][0].split()[2]}.xlsx'))
-                # TODO: сделать системное сообщение о процессе по имени Петя
+                self.label.setText("Аврора успешно нарезала ключи!")
                 self.keys_cutted = True
 
         except Exception:
@@ -191,22 +191,21 @@ class SmartStudentList(QMainWindow):
 
     def create_email(self):
         if self.keys_cutted:
-            print("OK")
+            fails = []
             db_sess = db_session.create_session()
             result_raw = db_sess.query(Student).all()
 
             for student in result_raw:
-                print(student.surname, student.email, os.path.join(self.table_save_path,
-                                                                   f'{student.surname} {student.name} {student.lastname}.xlsx'))
                 try:
-                    print(send_email(student.email,
-                                     os.path.join(self.table_save_path,
-                                                  f'{student.surname} {student.name} {student.lastname}.xlsx').replace(
-                                         '\\', '/')))
+                    send_email(student.email, os.path.join(self.table_save_path,
+                                                           f'{student.surname} {student.name} {student.lastname}.xlsx').replace(
+                        '\\', '/'))
                     time.sleep(2)
                 except Exception:
-                    print(student.surname, student.name, student.email)
+                    fails.append(f'{student.surname} {student.name} {student.lastname}')
                     continue
+            self.label.setText('Данные ученики не смогли получить свои ключи\n' + '\n'.join(
+                fails) if fails else "Аврора успешно завершила рассылку")
         else:
             self.warn = Warn("Вы еще не нарезали ключи...")
             self.warn.show()
@@ -216,6 +215,7 @@ class SmartStudentList(QMainWindow):
         self.lineEdit_4.setText(self.list_path)
 
     def create_list(self):
+        self.label.setText(f"Аврора рада Вас приветствовать!")
         try:
             table_header = None
             doc = docx.Document()
@@ -262,7 +262,7 @@ class SmartStudentList(QMainWindow):
                                   f'Список класса ' + \
                                   f'{self.comboBox.currentText() if self.comboBox.currentText() != "Все" else "полный"}' + \
                                   f'.docx'))
-            # TODO: сделать системное сообщение о процессе по имени Петя
+            self.label.setText(f"Аврора успешно создала список!")
         except Exception:
             self.warn = Warn("Невозможно перезаписать файл. Проверьте путь и разрешения")
             self.warn.show()

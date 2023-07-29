@@ -15,7 +15,6 @@ from email.mime.base import MIMEBase
 
 
 def send_email(recipient: str, key_path):
-    print("OK-2")
     sender = "kristall.system@mail.ru"
 
     load_dotenv()
@@ -23,42 +22,28 @@ def send_email(recipient: str, key_path):
     server = smtplib.SMTP('smtp.mail.ru', 25)
     server.starttls()
 
-    try:
-        with open('letter.html') as file:
-            template_data = file.read()
-    except Exception:
-        template_data = None
+    server.login(sender, password)
+    msg = MIMEMultipart()
+    msg["From"] = sender
+    msg["To"] = recipient
+    msg["Subject"] = "ВсОШ ключи"
 
-    print("OK-3")
+    msg.attach(MIMEText(
+        'Приветствую! Меня зовут Аврора, отвечаю за документы в экосистеме Kristall\nДля тебя у меня есть файл с твоими ключами для участия во Всероссийской Олимпиаде Школьников\n\n\nДанное письмо было сгенерировано подсистемой "Аквамарин" и не требует ответа'))
 
-    try:
-        server.login(sender, password)
-        msg = MIMEMultipart()
-        msg["From"] = sender
-        msg["To"] = recipient
-        msg["Subject"] = "ВсОШ ключи"
+    filename = os.path.basename(key_path.split('\\')[-1])
+    ftype, encoding = mimetypes.guess_type(key_path.split('\\')[-1])
+    file_type, subtype = ftype.split("/")
 
-        if template_data:
-            msg.attach(MIMEText(template_data, "html"))
+    with open(key_path, "rb") as f:
+        file = MIMEBase(file_type, subtype)
+        file.set_payload(f.read())
+        encoders.encode_base64(file)
 
-        filename = os.path.basename(key_path.split('\\')[-1])
-        ftype, encoding = mimetypes.guess_type(key_path.split('\\')[-1])
-        file_type, subtype = ftype.split("/")
-        print("OK-0")
-        with open(key_path, "rb") as f:
-            file = MIMEBase(file_type, subtype)
-            file.set_payload(f.read())
-            encoders.encode_base64(file)
+        file.add_header('content-disposition', 'attachment', filename=filename)
+        msg.attach(file)
 
-            file.add_header('content-disposition', 'attachment', filename=filename)
-            msg.attach(file)
-
-        print("OK-1")
-        server.sendmail(sender, recipient, msg.as_string())
-
-        return "The message was sent successfully!"
-    except Exception as _ex:
-        return f"{_ex}\nCheck your login or password please!"
+    server.sendmail(sender, recipient, msg.as_string())
 
 
 if __name__ == "__main__":
