@@ -63,6 +63,14 @@ QPushButton {
 	background-color: rgb(40, 40, 60);
 	padding: 5px;
 	border-radius: 5px;
+}
+
+QTableWidget::item {
+	color: rgb(240, 240, 255);
+}
+
+#label {
+	font-size: 28pt;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -156,6 +164,7 @@ QPushButton {
          </property>
          <property name="font">
           <font>
+           <pointsize>28</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -325,7 +334,11 @@ QPushButton {
            </layout>
           </item>
           <item>
-           <widget class="QTableWidget" name="tableWidget_1"/>
+           <widget class="QTableWidget" name="tableWidget_1">
+            <property name="styleSheet">
+             <string notr="true">color: rgb(10, 10, 20);</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
