@@ -2,6 +2,7 @@ from PyQt5 import uic, QtWidgets
 from data import db_session
 from data.students import Student
 from PyQt5.QtWidgets import QWidget
+from sqlalchemy import and_
 
 
 class AddStudentForm(QWidget):
@@ -32,7 +33,7 @@ class AddStudentForm(QWidget):
         db_sess = db_session.create_session()
 
         if db_sess.query(Student).filter(
-                Student.surname == surname and Student.name == name and Student.lastname == lastname).first():
+                and_(Student.surname == surname, Student.name == name, Student.lastname == lastname)).first():
             self.warn = Warn("Такой ученик уже есть")
             self.warn.show()
         else:
@@ -72,10 +73,10 @@ class EditStudentForm(QWidget):
 
         self.db_sess = db_session.create_session()
 
-        self.student = self.db_sess.query(Student).filter(Student.surname == str(
-            parent.tableWidget.item(parent.tableWidget.currentRow(), 0).text()) and Student.name == str(
-            parent.tableWidget.item(parent.tableWidget.currentRow(), 1).text()) and Student.lastname == str(
-            parent.tableWidget.item(parent.tableWidget.currentRow(), 2).text())).first()
+        self.student = self.db_sess.query(Student).filter(and_(Student.surname == str(
+            parent.tableWidget.item(parent.tableWidget.currentRow(), 0).text()), Student.name == str(
+            parent.tableWidget.item(parent.tableWidget.currentRow(), 1).text()), Student.lastname == str(
+            parent.tableWidget.item(parent.tableWidget.currentRow(), 2).text()))).first()
 
         self.lineEdit.setText(self.student.surname)
         self.lineEdit_2.setText(self.student.name)

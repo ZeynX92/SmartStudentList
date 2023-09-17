@@ -92,6 +92,7 @@ class EditDocumentForm(QWidget):
         self.db_sess.commit()
 
         # TODO: Удаления файла из ./documents
+        os.remove(f"documents/{self.doc.title}")
 
         self.parent.setEnabled(True)
         self.parent.search_document()

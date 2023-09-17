@@ -77,7 +77,9 @@ class SmartStudentList(QMainWindow):
 
     def update_table_student(self, result):
         print(f"Here {result}", bool(result))
+        self.tableWidget.setSortingEnabled(False)
         if result:
+            self.tableWidget.clearContents()
             self.tableWidget.setRowCount(len(result))
             self.tableWidget.setColumnCount(len(result[0]))
             self.titles = ["Фамилия", "Имя", "Отчество", "E-mail", "Телефон", "Заметка"]
@@ -94,6 +96,7 @@ class SmartStudentList(QMainWindow):
             self.warn.show()
 
         self.tableWidget.resizeColumnsToContents()
+        self.tableWidget.setSortingEnabled(True)
 
     def search_student(self):
         db_sess = db_session.create_session()
@@ -108,7 +111,8 @@ class SmartStudentList(QMainWindow):
             result.append([student.surname, student.name, student.lastname, student.email, student.telephone_number,
                            student.note])
 
-        self.update_table_student(result)
+        print("Search students: ", sorted(result))
+        self.update_table_student(sorted(result))
 
     def add_document(self):
         self.document_add_form = AddDocumentForm(self)
@@ -117,7 +121,9 @@ class SmartStudentList(QMainWindow):
 
     def update_table_document(self, result):
         print(f"Here {result}", bool(result))
+        self.tableWidget_1.setSortingEnabled(False)
         if result:
+            self.tableWidget_1.setRowCount(len(result))
             self.tableWidget_1.setRowCount(len(result))
             self.tableWidget_1.setColumnCount(len(result[0]))
             self.titles_1 = ["Документ", "Описание"]
@@ -134,6 +140,7 @@ class SmartStudentList(QMainWindow):
             self.warn.show()
 
         self.tableWidget_1.resizeColumnsToContents()
+        self.tableWidget_1.setSortingEnabled(True)
 
     def search_document(self):
         db_sess = db_session.create_session()
@@ -240,7 +247,7 @@ class SmartStudentList(QMainWindow):
                     table_header = ["ФИO", "E-mail"]
                     result.append((f'{student.surname} {student.name} {student.lastname}', student.email))
 
-            items = tuple(result)
+            items = tuple(sorted(result))
 
             table = doc.add_table(1, len(items[0]))
             table.style = 'Table Grid'
