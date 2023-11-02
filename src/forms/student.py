@@ -118,6 +118,25 @@ class EditStudentForm(QWidget):
         self.cancel.clicked.connect(self.cancel_pr)
         self.delete_2.clicked.connect(self.delete)
 
+    @staticmethod
+    def validate_phone(number):
+        """Проверяет действительность телефонного номера.
+
+        Проверка и анализ номеров осуществляется с помощью библиотеки Phonenumbers Python.
+        """
+        try:
+            parsed_phone = phonenumbers.parse(number)
+            bool_valid_phone = phonenumbers.is_valid_number(parsed_phone)
+        except phonenumbers.NumberParseException as e:
+            bool_valid_phone = False
+        return bool_valid_phone
+
+    @staticmethod
+    def check_email(email):
+        """Проверяет правильность написания адреса электронной почты."""
+        bool_valid_email = re.match(r'[a-zA-Z0-9][a-zA-Z0-9_.-]{1,63}?@[a-zA-Z0-9_.-]{2,63}\.[a-zA-Z]+', email)
+        return bool_valid_email
+
     def delete(self):
         self.db_sess.delete(self.student)
         self.db_sess.commit()
@@ -134,7 +153,13 @@ class EditStudentForm(QWidget):
         email = self.lineEdit_5.text()
         note = self.lineEdit_6.text()
 
-        if name and surname and lastname:
+        if not self.validate_phone(telephone_number) and telephone_number:
+            self.warn = Warn("Неверный формат телефона")
+            self.warn.show()
+        elif not self.check_email(email) and email:
+            self.warn = Warn("Неверный формат E-mail")
+            self.warn.show()
+        elif name and surname and lastname:
             self.student.name = name
             self.student.surname = surname
             self.student.lastname = lastname
