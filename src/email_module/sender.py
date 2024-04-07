@@ -15,7 +15,7 @@ from email.mime.base import MIMEBase
 
 
 def send_email(recipient: str, key_path):
-    sender = "system.kristall@mail.ru"
+    sender = "EMAIL_ADDRESS"
 
     load_dotenv()
     password = os.getenv("EMAIL_PASSWORD")
