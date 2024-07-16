@@ -1,5 +1,5 @@
 greenlet~=2.0.2  
-pip~=21.1.2
+pip
 PyQt5~=5.15.9
 PyQt5-Qt5~=5.15.2
 PyQt5-sip~=12.12.1
@@ -7,7 +7,7 @@ setuptools
 SQLAlchemy~=2.0.18
 SQLAlchemy-serializer~=1.4.1
 typing-extensions~=4.7.1
-wheel~=0.36.2
+wheel
 lxml~=4.9.3
 python-docx~=0.8.11
 phonenumbers
