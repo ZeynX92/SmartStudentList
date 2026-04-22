@@ -8,6 +8,6 @@ SQLAlchemy~=2.0.18
 SQLAlchemy-serializer~=1.4.1
 typing-extensions~=4.7.1
 wheel
-lxml~=4.9.3
+lxml>=6.1.0
 python-docx~=0.8.11
 phonenumbers
